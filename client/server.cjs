@@ -1,13 +1,12 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const app = express();
 
+const app = express();
 const distPath = path.join(__dirname, 'dist');
 
-// Check if dist exists
 if (!fs.existsSync(distPath)) {
-  console.error('ERROR: dist folder not found! Build may have failed.');
+  console.error('ERROR: dist folder not found!');
   process.exit(1);
 }
 
@@ -20,6 +19,17 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, '0.0.0.0', () => {
+
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`✓ Client running on port ${PORT}`);
+});
+
+// Keep process alive
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  server.close(() => process.exit(0));
+});
+
+process.on('SIGINT', () => {
+  server.close(() => process.exit(0));
 });
