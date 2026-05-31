@@ -3,29 +3,70 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --bg-primary:   #0f1117;
-    --bg-secondary: #161b27;
-    --bg-card:      #1c2232;
-    --border:       #252d42;
+  /* ── Dark theme (default) ────────────────────────────── */
+  :root, [data-theme="dark"] {
+    --bg-primary:    #0f1117;
+    --bg-secondary:  #161b27;
+    --bg-card:       #1c2232;
+    --bg-input:      #1c2232;
+    --border:        #252d42;
+    --border-hover:  #3a4664;
+    --text-primary:  #e8eaf0;
+    --text-secondary:#9ca3af;
+    --text-muted:    #4b5563;
+    --shadow-card:   0 1px 3px rgba(0,0,0,0.35);
   }
+
+  /* ── Light theme ─────────────────────────────────────── */
+  [data-theme="light"] {
+    --bg-primary:    #f0f2f7;
+    --bg-secondary:  #ffffff;
+    --bg-card:       #ffffff;
+    --bg-input:      #f8f9fc;
+    --border:        #e2e6f0;
+    --border-hover:  #c7d0e8;
+    --text-primary:  #111827;
+    --text-secondary:#374151;
+    --text-muted:    #9ca3af;
+    --shadow-card:   0 1px 4px rgba(0,0,0,0.08);
+  }
+
   body {
-    @apply bg-[#0f1117] text-gray-100 antialiased;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    @apply antialiased;
     font-family: 'DM Sans', sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
+
   * { box-sizing: border-box; }
 
-  /* custom scrollbar */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #2e384f; border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #3a4664; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
 }
 
 @layer utilities {
+  /* Theme-aware utility classes */
+  .bg-theme-primary   { background-color: var(--bg-primary); }
+  .bg-theme-secondary { background-color: var(--bg-secondary); }
+  .bg-theme-card      { background-color: var(--bg-card); }
+  .bg-theme-input     { background-color: var(--bg-input); }
+  .border-theme       { border-color: var(--border); }
+  .border-theme-hover { border-color: var(--border-hover); }
+  .text-theme-primary   { color: var(--text-primary); }
+  .text-theme-secondary { color: var(--text-secondary); }
+  .text-theme-muted     { color: var(--text-muted); }
+
   .glass {
     background: rgba(22, 27, 39, 0.8);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
   }
+  [data-theme="light"] .glass {
+    background: rgba(255,255,255,0.85);
+  }
+
+  /* Card shadow */
+  .shadow-theme-card { box-shadow: var(--shadow-card); }
 }

@@ -150,6 +150,44 @@ module.exports = function boardHandlers(io, socket) {
       console.error('[column:delete]', err.message);
     }
   });
+  /* ── Code Editor: sync ────────────────────────────────────── */
+socket.on('editor:join', async ({ boardId }) => {
+  const access = await db.isBoardMember(boardId, user.id).catch(() => ({ rows: [] }));
+  if (!access.rows.length) { socket.emit('error', { message: 'Access denied' }); return; }
+  socket.join(`editor:${boardId}`);
+  socket.emit('editor:joined', { boardId });
+});
+
+socket.on('editor:leave', ({ boardId }) => {
+  socket.leave(`editor:${boardId}`);
+  socket.to(`editor:${boardId}`).emit('editor:user_left', { userId: user.id });
+});
+
+socket.on('editor:change', ({ boardId, value, language }) => {
+  socket.to(`editor:${boardId}`).emit('editor:changed', {
+    value,
+    language,
+    userId: user.id,
+    userName: user.name,
+  });
+});
+
+socket.on('editor:language_change', ({ boardId, language }) => {
+  socket.to(`editor:${boardId}`).emit('editor:language_changed', {
+    language,
+    userName: user.name,
+  });
+});
+
+socket.on('editor:cursor', ({ boardId, line, column }) => {
+  socket.to(`editor:${boardId}`).emit('editor:cursor_update', {
+    userId: user.id,
+    userName: user.name,
+    color: user.avatar_color,
+    line,
+    column,
+  });
+});
 };
 
 function enrich(activityRow, user) {

@@ -73,3 +73,14 @@ CREATE INDEX IF NOT EXISTS idx_cards_column        ON cards(column_id);
 CREATE INDEX IF NOT EXISTS idx_cards_board         ON cards(board_id);
 CREATE INDEX IF NOT EXISTS idx_activity_board      ON activity_log(board_id);
 CREATE INDEX IF NOT EXISTS idx_activity_created    ON activity_log(created_at DESC);
+
+
+-- Code sessions (persistent editor state per board)
+CREATE TABLE IF NOT EXISTS code_sessions (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  board_id    UUID REFERENCES boards(id) ON DELETE CASCADE UNIQUE,
+  code        TEXT DEFAULT '',
+  language    VARCHAR(50) DEFAULT 'javascript',
+  saved_by    UUID REFERENCES users(id) ON DELETE SET NULL,
+  updated_at  TIMESTAMPTZ DEFAULT NOW()
+);

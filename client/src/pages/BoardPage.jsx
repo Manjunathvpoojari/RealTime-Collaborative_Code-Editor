@@ -165,6 +165,15 @@ export default function BoardPage() {
           </button>
 
           <button
+            onClick={() => navigate(`/editor/${boardId}`)}
+            className="text-xs text-gray-400 hover:text-white bg-[#1c2232] hover:bg-[#252d42] border border-[#252d42] px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+>
+              <span>⌨</span> Code Editor
+          </button>
+
+
+
+          <button
             onClick={() => setAct(!showActivity)}
             className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
               showActivity

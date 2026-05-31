@@ -173,6 +173,21 @@ const getActivityForBoard = (boardId, limit = 50) =>
     [boardId, limit]
   );
 
+
+/* ─── Code Sessions ──────────────────────────────────────── */
+const getCodeSession = (boardId) =>
+  pool.query('SELECT * FROM code_sessions WHERE board_id = $1', [boardId]);
+
+const saveCodeSession = (boardId, code, language, userId) =>
+  pool.query(
+    `INSERT INTO code_sessions (board_id, code, language, saved_by, updated_at)
+     VALUES ($1, $2, $3, $4, NOW())
+     ON CONFLICT (board_id) DO UPDATE
+     SET code = $2, language = $3, saved_by = $4, updated_at = NOW()
+     RETURNING *`,
+    [boardId, code, language, userId]
+  );
+
 module.exports = {
   findUserByEmail, findUserById, createUser,
   getBoardsForUser, getBoardById, createBoard, updateBoard, deleteBoard,
@@ -181,4 +196,6 @@ module.exports = {
   getCardsForBoard, countCardsInColumn, createCard, updateCard,
   updateCardPositions, deleteCard,
   logActivity, getActivityForBoard,
+  getCodeSession, saveCodeSession
 };
+  

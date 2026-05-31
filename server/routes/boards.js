@@ -121,4 +121,33 @@ router.post('/:boardId/invite', authenticate, async (req, res) => {
   }
 });
 
+/* GET /api/boards/:boardId/code */
+router.get('/:boardId/code', authenticate, async (req, res) => {
+  const { boardId } = req.params;
+  try {
+    const access = await db.isBoardMember(boardId, req.user.id);
+    if (!access.rows.length) return res.status(403).json({ error: 'Access denied' });
+    const result = await db.getCodeSession(boardId);
+    res.json({ session: result.rows[0] || null });
+  } catch (err) {
+    console.error('[GET /code]', err.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+/* POST /api/boards/:boardId/code */
+router.post('/:boardId/code', authenticate, async (req, res) => {
+  const { boardId } = req.params;
+  const { code, language } = req.body;
+  try {
+    const access = await db.isBoardMember(boardId, req.user.id);
+    if (!access.rows.length) return res.status(403).json({ error: 'Access denied' });
+    const result = await db.saveCodeSession(boardId, code, language, req.user.id);
+    res.json({ session: result.rows[0] });
+  } catch (err) {
+    console.error('[POST /code]', err.message);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;

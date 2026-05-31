@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { SortableContext, verticalListSortingStrategy, useDroppable } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useDroppable } from '@dnd-kit/core';
 import CardItem from './CardItem';
 
 export default function BoardColumn({

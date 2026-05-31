@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { getBoards, createBoard, deleteBoard } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { disconnectSocket } from '../hooks/useSocket';
+import { useTheme } from '../context/ThemeContext';
 
 export default function DashboardPage() {
   const { user, signOut } = useAuth();
@@ -14,6 +15,7 @@ export default function DashboardPage() {
   const [newTitle, setNewTitle]   = useState('');
   const [newDesc, setNewDesc]     = useState('');
   const [creating, setCreating]   = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     getBoards()
@@ -83,6 +85,13 @@ export default function DashboardPage() {
               </div>
               <span className="text-sm text-gray-300 hidden sm:block">{user?.name}</span>
             </div>
+            <button
+  onClick={toggleTheme}
+  className="w-8 h-8 rounded-lg flex items-center justify-center border border-theme bg-theme-card hover:border-brand-500 transition-all text-base"
+  title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+>
+  {theme === 'dark' ? '☀️' : '🌙'}
+</button>
             <button
               onClick={handleSignOut}
               className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded transition-colors"

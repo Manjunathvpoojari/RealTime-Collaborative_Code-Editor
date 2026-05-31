@@ -22,3 +22,8 @@ export const deleteColumn   = (boardId, colId)     => api.delete(`/boards/${boar
 export const createCard     = (boardId, data)      => api.post(`/boards/${boardId}/cards`, data);
 export const updateCard     = (boardId, id, data)  => api.patch(`/boards/${boardId}/cards/${id}`, data);
 export const deleteCard     = (boardId, id)        => api.delete(`/boards/${boardId}/cards/${id}`);
+
+
+/* ── Code Sessions ───────────────────────────────────────── */
+export const getCodeSession  = (boardId)              => api.get(`/boards/${boardId}/code`);
+export const saveCodeSession = (boardId, code, lang)  => api.post(`/boards/${boardId}/code`, { code, language: lang });
