@@ -24,6 +24,13 @@ export const updateCard     = (boardId, id, data)  => api.patch(`/boards/${board
 export const deleteCard     = (boardId, id)        => api.delete(`/boards/${boardId}/cards/${id}`);
 
 
+
 /* ── Code Sessions ───────────────────────────────────────── */
 export const getCodeSession  = (boardId)              => api.get(`/boards/${boardId}/code`);
 export const saveCodeSession = (boardId, code, lang)  => api.post(`/boards/${boardId}/code`, { code, language: lang });
+
+
+/* ── Code Versions ───────────────────────────────────────── */
+export const getCodeVersions   = (boardId)                    => api.get(`/boards/${boardId}/versions`);
+export const getCodeVersionById = (boardId, versionId)        => api.get(`/boards/${boardId}/versions/${versionId}`);
+export const createCodeVersion  = (boardId, code, lang, msg)  => api.post(`/boards/${boardId}/versions`, { code, language: lang, message: msg });

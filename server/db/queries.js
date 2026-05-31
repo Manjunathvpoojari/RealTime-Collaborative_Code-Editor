@@ -188,6 +188,28 @@ const saveCodeSession = (boardId, code, language, userId) =>
     [boardId, code, language, userId]
   );
 
+  /* ─── Code Versions ──────────────────────────────────────── */
+const getCodeVersions = (boardId, limit = 20) =>
+  pool.query(
+    `SELECT id, board_id, language, saved_by_name, message, created_at,
+       LEFT(code, 120) AS code_preview
+     FROM code_versions
+     WHERE board_id = $1
+     ORDER BY created_at DESC
+     LIMIT $2`,
+    [boardId, limit]
+  );
+
+const getCodeVersionById = (versionId) =>
+  pool.query('SELECT * FROM code_versions WHERE id = $1', [versionId]);
+
+const createCodeVersion = (boardId, code, language, userId, userName, message) =>
+  pool.query(
+    `INSERT INTO code_versions (board_id, code, language, saved_by, saved_by_name, message)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [boardId, code, language, userId, userName, message]
+  );
+
 module.exports = {
   findUserByEmail, findUserById, createUser,
   getBoardsForUser, getBoardById, createBoard, updateBoard, deleteBoard,
@@ -196,6 +218,7 @@ module.exports = {
   getCardsForBoard, countCardsInColumn, createCard, updateCard,
   updateCardPositions, deleteCard,
   logActivity, getActivityForBoard,
-  getCodeSession, saveCodeSession
+  getCodeSession, saveCodeSession,
+  getCodeVersions, getCodeVersionById, createCodeVersion
 };
   

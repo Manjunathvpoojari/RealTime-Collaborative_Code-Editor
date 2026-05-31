@@ -84,3 +84,17 @@ CREATE TABLE IF NOT EXISTS code_sessions (
   saved_by    UUID REFERENCES users(id) ON DELETE SET NULL,
   updated_at  TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Code version history
+CREATE TABLE IF NOT EXISTS code_versions (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  board_id    UUID REFERENCES boards(id) ON DELETE CASCADE,
+  code        TEXT DEFAULT '',
+  language    VARCHAR(50) DEFAULT 'javascript',
+  saved_by    UUID REFERENCES users(id) ON DELETE SET NULL,
+  saved_by_name VARCHAR(255),
+  message     VARCHAR(255) DEFAULT 'Manual save',
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_code_versions_board ON code_versions(board_id);

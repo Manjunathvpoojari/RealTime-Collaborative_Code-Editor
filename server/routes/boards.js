@@ -150,4 +150,50 @@ router.post('/:boardId/code', authenticate, async (req, res) => {
   }
 });
 
+/* GET /api/boards/:boardId/versions */
+router.get('/:boardId/versions', authenticate, async (req, res) => {
+  const { boardId } = req.params;
+  try {
+    const access = await db.isBoardMember(boardId, req.user.id);
+    if (!access.rows.length) return res.status(403).json({ error: 'Access denied' });
+    const result = await db.getCodeVersions(boardId);
+    res.json({ versions: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+/* GET /api/boards/:boardId/versions/:versionId */
+router.get('/:boardId/versions/:versionId', authenticate, async (req, res) => {
+  const { versionId } = req.params;
+  try {
+    const result = await db.getCodeVersionById(versionId);
+    if (!result.rows.length) return res.status(404).json({ error: 'Version not found' });
+    res.json({ version: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+/* POST /api/boards/:boardId/versions */
+router.post('/:boardId/versions', authenticate, async (req, res) => {
+  const { boardId } = req.params;
+  const { code, language, message = 'Manual save' } = req.body;
+  try {
+    const access = await db.isBoardMember(boardId, req.user.id);
+    if (!access.rows.length) return res.status(403).json({ error: 'Access denied' });
+
+    // Save version snapshot
+    const versionRes = await db.createCodeVersion(
+      boardId, code, language, req.user.id, req.user.name, message
+    );
+    // Also update current session
+    await db.saveCodeSession(boardId, code, language, req.user.id);
+
+    res.json({ version: versionRes.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;
