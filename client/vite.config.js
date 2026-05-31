@@ -8,11 +8,11 @@ export default defineConfig({
     host: '0.0.0.0',
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://server:3001',
+        target: 'http://server:3001',
         changeOrigin: true,
       },
       '/socket.io': {
-        target: process.env.VITE_API_URL || 'http://server:3001',
+        target: 'http://server:3001',
         ws: true,
         changeOrigin: true,
       },
@@ -21,5 +21,6 @@ export default defineConfig({
   preview: {
     port: 3000,
     host: '0.0.0.0',
+    allowedHosts: ['all'],
   },
 });
