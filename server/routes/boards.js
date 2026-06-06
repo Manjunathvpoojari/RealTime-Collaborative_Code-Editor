@@ -197,46 +197,57 @@ router.post('/:boardId/versions', authenticate, async (req, res) => {
   }
 });
 
-/* POST /api/run — proxy to Judge0 */
+/* POST /api/boards/run — via Piston API */
 router.post('/run', authenticate, async (req, res) => {
   const { code, language } = req.body;
 
-  const JUDGE0_URL = process.env.JUDGE0_URL || 'http://localhost:2358';
-
-  const languageIds = {
-    javascript: 63,
-    python:     71,
-    java:       62,
+  const languageMap = {
+    python:     { language: 'python',     version: '3.10.0' },
+    java:       { language: 'java',       version: '15.0.2' },
+    javascript: { language: 'javascript', version: '18.15.0' },
+    cpp:        { language: 'c++',        version: '10.2.0' },
+    c:          { language: 'c',          version: '10.2.0' },
+    typescript: { language: 'typescript', version: '5.0.3' },
   };
 
-  const language_id = languageIds[language];
-  if (!language_id) {
-    return res.json({ stdout: '', stderr: `Running ${language} is not supported yet.`, time: '0', status: { description: 'N/A' } });
+  const lang = languageMap[language];
+  if (!lang) {
+    return res.json({
+      stdout: '',
+      stderr: `Running ${language} is not supported yet.`,
+      time: '0',
+      status: { description: 'Unsupported' },
+    });
   }
 
   try {
-    // Submit code
-    const submitRes = await fetch(`${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`, {
+    const response = await fetch('https://emkc.org/api/v2/piston/execute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        source_code: code,
-        language_id,
-        stdin: '',
+        language: lang.language,
+        version:  lang.version,
+        files: [{ content: code }],
       }),
     });
 
-    const result = await submitRes.json();
+    const result = await response.json();
+    const run = result.run || {};
+
     res.json({
-      stdout:  result.stdout  || '',
-      stderr:  result.stderr  || result.compile_output || '',
-      time:    result.time    || '0',
-      memory:  result.memory  || 0,
-      status:  result.status  || { description: 'Unknown' },
+      stdout: run.stdout || '',
+      stderr: run.stderr || run.output || '',
+      time:   (run.cpu_time / 1000000 || 0).toFixed(3),
+      status: { description: run.code === 0 ? 'Accepted' : 'Runtime Error' },
     });
   } catch (err) {
     console.error('[run]', err.message);
-    res.status(500).json({ stderr: 'Execution service unavailable. Make sure Judge0 is running.', stdout: '', time: '0', status: { description: 'Error' } });
+    res.status(500).json({
+      stdout: '',
+      stderr: 'Execution service unavailable. Check your internet connection.',
+      time: '0',
+      status: { description: 'Error' },
+    });
   }
 });
 

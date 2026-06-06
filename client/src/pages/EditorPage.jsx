@@ -10,7 +10,7 @@ import { useSocket } from '../hooks/useSocket';
 import { useAuth }   from '../context/AuthContext';
 import { useTheme }  from '../context/ThemeContext';
 
-const SUPPORTED_RUN = ['javascript', 'python', 'java'];
+const SUPPORTED_RUN = ['javascript', 'python', 'java', 'cpp', 'c', 'typescript'];
 
 const LANGUAGES = [
   'javascript','typescript','python','java','cpp','c',
