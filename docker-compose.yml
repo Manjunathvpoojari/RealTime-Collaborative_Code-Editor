@@ -28,6 +28,43 @@ services:
       timeout: 3s
       retries: 5
 
+  # Judge0 dependencies
+  judge0-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: judge0
+      POSTGRES_PASSWORD: judge0
+      POSTGRES_DB: judge0
+    volumes:
+      - judge0data:/var/lib/postgresql/data
+
+  judge0-redis:
+    image: redis:6
+    command: redis-server --requirepass judge0
+
+  judge0-server:
+    image: judge0/judge0:1.13.1
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    ports:
+      - '2358:2358'
+    privileged: true
+    depends_on:
+      - judge0-db
+      - judge0-redis
+    restart: always
+
+  judge0-workers:
+    image: judge0/judge0:1.13.1
+    command: ['./scripts/workers']
+    volumes:
+      - ./judge0.conf:/judge0.conf:ro
+    privileged: true
+    depends_on:
+      - judge0-db
+      - judge0-redis
+    restart: always
+
   server:
     build: ./server
     ports:
@@ -40,6 +77,7 @@ services:
       JWT_SECRET: change-this-in-production-please
       JWT_EXPIRY: 7d
       CLIENT_URL: http://localhost:5173
+      JUDGE0_URL: http://judge0-server:2358
     depends_on:
       postgres:
         condition: service_healthy
@@ -61,3 +99,4 @@ services:
 
 volumes:
   pgdata:
+  judge0data:

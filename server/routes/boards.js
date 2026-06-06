@@ -1,3 +1,4 @@
+const fetch = (...args) => import('node-fetch').then(({default: f}) => f(...args));
 const router = require('express').Router();
 const { body, validationResult } = require('express-validator');
 const { authenticate } = require('../middleware/auth');
@@ -193,6 +194,49 @@ router.post('/:boardId/versions', authenticate, async (req, res) => {
     res.json({ version: versionRes.rows[0] });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+/* POST /api/run — proxy to Judge0 */
+router.post('/run', authenticate, async (req, res) => {
+  const { code, language } = req.body;
+
+  const JUDGE0_URL = process.env.JUDGE0_URL || 'http://localhost:2358';
+
+  const languageIds = {
+    javascript: 63,
+    python:     71,
+    java:       62,
+  };
+
+  const language_id = languageIds[language];
+  if (!language_id) {
+    return res.json({ stdout: '', stderr: `Running ${language} is not supported yet.`, time: '0', status: { description: 'N/A' } });
+  }
+
+  try {
+    // Submit code
+    const submitRes = await fetch(`${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        source_code: code,
+        language_id,
+        stdin: '',
+      }),
+    });
+
+    const result = await submitRes.json();
+    res.json({
+      stdout:  result.stdout  || '',
+      stderr:  result.stderr  || result.compile_output || '',
+      time:    result.time    || '0',
+      memory:  result.memory  || 0,
+      status:  result.status  || { description: 'Unknown' },
+    });
+  } catch (err) {
+    console.error('[run]', err.message);
+    res.status(500).json({ stderr: 'Execution service unavailable. Make sure Judge0 is running.', stdout: '', time: '0', status: { description: 'Error' } });
   }
 });
 

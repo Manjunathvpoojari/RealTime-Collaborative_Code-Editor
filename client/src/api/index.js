@@ -34,3 +34,5 @@ export const saveCodeSession = (boardId, code, lang)  => api.post(`/boards/${boa
 export const getCodeVersions   = (boardId)                    => api.get(`/boards/${boardId}/versions`);
 export const getCodeVersionById = (boardId, versionId)        => api.get(`/boards/${boardId}/versions/${versionId}`);
 export const createCodeVersion  = (boardId, code, lang, msg)  => api.post(`/boards/${boardId}/versions`, { code, language: lang, message: msg });
+/* ── Code Runner ─────────────────────────────────────────── */
+export const runCode = (code, language) => api.post('/boards/run', { code, language });
