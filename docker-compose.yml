@@ -50,9 +50,16 @@ services:
       - /app/node_modules
 
   client:
-    build: ./client
+    build:
+      context: ./client
+      dockerfile: Dockerfile
     ports:
       - '5173:5173'
+    environment:
+      # Tell Vite dev proxy to reach the server container
+      VITE_API_PROXY: http://server:3001
+    # Override the Dockerfile CMD to run Vite dev server with HMR
+    command: ["npm", "run", "dev", "--", "--host"]
     depends_on:
       - server
     volumes:

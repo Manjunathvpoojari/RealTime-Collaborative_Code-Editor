@@ -3,6 +3,10 @@ import { io } from 'socket.io-client';
 
 let sharedSocket = null;
 
+// In production VITE_API_URL points to the API server (e.g. https://my-server.up.railway.app).
+// In dev, the Vite proxy handles /socket.io so we connect to '/'.
+const SOCKET_URL = import.meta.env.VITE_API_URL || '/';
+
 export function useSocket() {
   const socketRef = useRef(null);
 
@@ -11,7 +15,7 @@ export function useSocket() {
     if (!token) return;
 
     if (!sharedSocket || !sharedSocket.connected) {
-      sharedSocket = io('/', {
+      sharedSocket = io(SOCKET_URL, {
         auth: { token },
         transports: ['websocket', 'polling'],
         reconnectionAttempts: 5,
